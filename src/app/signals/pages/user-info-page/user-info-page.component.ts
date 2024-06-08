@@ -2,6 +2,7 @@ import { Component, computed, inject, OnInit, signal } from '@angular/core';
 import { UsesServiceService } from '../../services/uses-service.service';
 import { User } from '../../interfaces/user-request.interface';
 import { single } from 'rxjs';
+import { error } from 'node:console';
 
 @Component({
   selector: 'app-user-info-page',
@@ -35,9 +36,17 @@ export class UserInfoPageComponent implements OnInit {
     this.currentUser.set(undefined); //esto se hace para que al cambiar de usuario se borre el actual y parezca mas rapido el cambio de un usuario a otro
 
     this._usersService.getUserById( id )
-      .subscribe( user => {
-        this.currentUser.set( user )
-      })
+      .subscribe({
+        next: (user) => {
+          this.currentUser.set( user);
+          this.userWasFound.set(true);
+        },
+
+        error: () => {
+          this.userWasFound.set(false);
+          this.currentUser.set(undefined);
+        }
+      });
 
   }
 
